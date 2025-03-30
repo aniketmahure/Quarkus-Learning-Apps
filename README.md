@@ -72,6 +72,86 @@ quarkus.http.cors.exposed-headers=Content-Disposition
 quarkus.http.cors.access-control-max-age=24H 
 quarkus.http.cors.access-control-allow-credentials=true 
 
+# Quarkus Database
+Panache is a Quarkus extension that dramatically simplifies the development of JPA entities and repositories. It aims to reduce boilerplate code and make common database operations more intuitive.   
+
+Panache offers two main styles for interacting with your database:
+
+1)Active Record Style (PanacheEntity): Your entity classes directly inherit database interaction methods. This style is convenient for simple entities and operations.
+
+2)Repository Style (PanacheRepository and PanacheRepositoryBase): You create separate repository interfaces or classes that handle database interactions for specific entities. This promotes better separation of concerns and testability for more complex applications.   
+
+## Using Active Record Style (PanacheEntity):
+
+Extend PanacheEntity: Make your JPA entity class extend io.quarkus.hibernate.orm.panache.PanacheEntity.
+
+ No Need for @Repository or EntityManager Injection (Usually): Panache injects static methods into your entity class, allowing you to perform common database operations directly on the entity class itself.   
+
+## Using Repository Style (PanacheRepository and PanacheRepositoryBase):
+
+Create a Repository Interface: Define an interface that extends io.quarkus.hibernate.orm.panache.PanacheRepository<YourEntity>.
+
+Inject the Repository: Inject an instance of your repository into your service or resource using @Inject.
+
+Example:
+
+Java
+
+package org.acme.repository;
+
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import org.acme.model.Person;
+
+@ApplicationScoped
+public class PersonRepository implements PanacheRepository<Person> {
+
+    public Person findByName(String name) {
+        return find("name", name).firstResult();
+    }
+
+    public long countAlive() {
+        return count("email IS NOT NULL");
+    }
+}
+
+
+Use the Repository in your code:
+
+Java
+
+package org.acme.resource;
+
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import org.acme.model.Person;
+import org.acme.repository.PersonRepository;
+
+@Path("/persons")
+public class PersonResource {
+
+    @Inject
+    PersonRepository personRepository;
+
+    @GET
+    @Path("/{name}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Person getPersonByName(String name) {
+        return personRepository.findByName(name);
+    }
+
+    @GET
+    @Path("/count-alive")
+    @Produces(MediaType.TEXT_PLAIN)
+    public long countAlivePersons() {
+        return personRepository.countAlive();
+    }
+}
+PanacheRepositoryBase for Custom ID Types: If your entity uses a custom ID type (not Long), you can extend PanacheRepositoryBase<YourEntity, YourIdType>.
+
 
 
 
