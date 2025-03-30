@@ -10,7 +10,7 @@ Subatomic: Executable JAR is small
 -Quarkus was created to enable Java developers to create applications for a modern, cloud-native world. 
 -Quarkus is a Kubernetes-native Java framework tailored for GraalVM and HotSpot, crafted from best-of-breed Java libraries and standards.
 
-Quarkus Application
+## Quarkus Application
 -Contains Docker Container ready files folder already.
 To Run:
 •	mvn quarkus:dev  (Maven Installed)
@@ -150,6 +150,7 @@ public class PersonResource {
         return personRepository.countAlive();
     }
 }
+
 PanacheRepositoryBase for Custom ID Types: If your entity uses a custom ID type (not Long), you can extend PanacheRepositoryBase<YourEntity, YourIdType>.
 
 
